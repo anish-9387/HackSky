@@ -2,8 +2,8 @@ import sys
 import os
 sys.path.append(os.path.abspath("../shared"))
 
-from flask import Flask, request, jsonify
-from db import init_db, is_node_authorized, log_access_attempt, get_private_key
+from flask import Flask, request, jsonify, render_template
+from db import init_db, is_node_authorized, log_access_attempt, get_private_key, DB_PATH
 from pqc_sim import decrypt_and_verify
 import sqlite3
 from pathlib import Path
@@ -32,5 +32,23 @@ def connect_node():
     log_access_attempt(node_id or "unknown", client_ip, "Access Denied ❌")
     return jsonify({"status": "Access Denied ❌", "node_id": node_id}), 403
 
+@app.route('/')
+def dashboard():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT node_id, ip_address, result, timestamp FROM access_logs ORDER BY id DESC LIMIT 50")
+    logs = cursor.fetchall()
+
+    cursor.execute("SELECT COUNT(*) FROM access_logs WHERE result LIKE 'Access Granted%'")
+    granted = cursor.fetchone()[0]
+
+    cursor.execute("SELECT COUNT(*) FROM access_logs WHERE result LIKE 'Access Denied%'")
+    denied = cursor.fetchone()[0]
+
+    conn.close()
+
+    return render_template("dashboard.html", logs=logs, granted=granted, denied=denied)
+
 if __name__ == '__main__':
     app.run(host="127.0.0.1", port=5000)
+    app.run(host="986.0.1.2", port=5000)

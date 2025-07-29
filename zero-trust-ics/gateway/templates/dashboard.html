@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>ICS Gateway Logs</title>
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f4f4f4; }
+    h1 { color: #333; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #007BFF; color: white; }
+    .stats { margin-top: 20px; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <h1>🔒 ICS Gateway Access Logs</h1>
+
+  <div class="stats">
+    ✅ Access Granted: <strong>{{ granted }}</strong><br>
+    ❌ Access Denied: <strong>{{ denied }}</strong>
+  </div>
+
+  <table>
+    <tr>
+      <th>Node ID</th>
+      <th>IP Address</th>
+      <th>Result</th>
+      <th>Timestamp (UTC)</th>
+    </tr>
+    {% for row in logs %}
+    <tr>
+      <td>{{ row[0] }}</td>
+      <td>{{ row[1] }}</td>
+      <td>{{ row[2] }}</td>
+      <td>{{ row[3] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <script>
+    setTimeout(() => location.reload(), 10000);
+  </script>
+
+</body>
+</html>
