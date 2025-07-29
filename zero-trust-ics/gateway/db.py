@@ -14,30 +14,6 @@ def init_db():
             secret_key TEXT
         )
     ''')
-    conn.commit()
-    conn.close()
-
-def register_node(node_id, secret_key):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    try:
-        cursor.execute("INSERT INTO nodes (node_id, secret_key) VALUES (?, ?)", (node_id, secret_key))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        pass  # Already registered
-    conn.close()
-
-def is_node_authorized(node_id, secret_key):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM nodes WHERE node_id = ? AND secret_key = ?", (node_id, secret_key))
-    result = cursor.fetchone()
-    conn.close()
-    return result is not None
-
-def log_access_attempt(node_id, ip_address, result):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS access_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,6 +23,22 @@ def log_access_attempt(node_id, ip_address, result):
             timestamp TEXT
         )
     ''')
+    conn.commit()
+    conn.close()
+
+def register_node(node_id, secret_key):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT OR REPLACE INTO nodes (node_id, secret_key) VALUES (?, ?)", (node_id, secret_key))
+        conn.commit()
+    except sqlite3.IntegrityError:
+        pass
+    conn.close()
+
+def log_access_attempt(node_id, ip_address, result):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     timestamp = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
     cursor.execute("INSERT INTO access_logs (node_id, ip_address, result, timestamp) VALUES (?, ?, ?, ?)",
                    (node_id, ip_address, result, timestamp))
@@ -60,3 +52,11 @@ def get_private_key(node_id):
     row = cursor.fetchone()
     conn.close()
     return row[0] if row else None
+
+def fetch_logs():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT node_id, ip_address, result, timestamp FROM access_logs ORDER BY id DESC")
+    logs = cursor.fetchall()
+    conn.close()
+    return logs
