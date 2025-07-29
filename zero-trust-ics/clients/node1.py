@@ -18,4 +18,9 @@ payload = {
 gateway_url = "http://127.0.0.1:5000/connect"
 response = requests.post(gateway_url, json=payload)
 
-print("Client Response:", response.status_code, response.json())
+print("Status Code:", response.status_code)
+try:
+    print("Response JSON:", response.json())
+except Exception as e:
+    print("Error parsing response JSON:", e)
+    print("Raw text response:", response.text)
