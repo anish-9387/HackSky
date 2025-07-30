@@ -1,2 +1,6 @@
 flask
 requests
+streamlit
+scikit-learn
+pandas
+matplotlib
