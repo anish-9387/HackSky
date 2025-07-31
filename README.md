@@ -32,7 +32,7 @@ In a world of increasing ICS-targeted cyberattacks, traditional perimeter-based 
 | Backend  | Python, Flask, Socket |
 | Crypto   | PQCrypto or OQS Lib (Kyber512 / FrodoKEM) |
 | Database | SQLite (lightweight + embedded) |
-| Dashboard (Optional) | HTML/CSS + Bootstrap |
+| Dashboard | HTML/CSS + Bootstrap |
 | Others   | Threading, Logging, UUID, JSON |
 
 ---
